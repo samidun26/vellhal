@@ -1,0 +1,1237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Tuner of Vell Hall</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cormorant+SC:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#07080d; --ink:#e8dcc4; --dim:#9a9080; --faint:#6a6356;
+  --gold:#c9a45c; --ember:#e2a35a; --rose:#c98a8a; --line:rgba(201,164,92,.38);
+  --paper-ink:#2d2217;
+  --serif:'Cormorant Garamond','Iowan Old Style',Georgia,serif;
+  --sc:'Cormorant SC','Cormorant Garamond',Georgia,serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;min-height:100%}
+body{background:var(--night);color:var(--ink);font-family:var(--serif);font-size:19px;line-height:1.55;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+#vignette{position:fixed;inset:0;pointer-events:none;z-index:1;background:radial-gradient(ellipse at 50% 45%,transparent 38%,rgba(0,0,0,.78) 100%)}
+#app{position:relative;z-index:2;max-width:780px;margin:0 auto;padding:72px 16px 64px;min-height:100vh;display:flex;flex-direction:column}
+#hud{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:12px 16px;gap:12px;pointer-events:none}
+#hud>*{pointer-events:auto}
+#hud .right{display:flex;gap:12px;align-items:center;margin-left:auto}
+.hud-btn{font:inherit;font-size:.92rem;background:rgba(8,8,12,.6);border:1px solid rgba(201,164,92,.28);color:var(--ink);padding:.3rem .85rem;cursor:pointer;border-radius:2px}
+.hud-btn:hover{border-color:var(--gold)}
+.vol{display:flex;align-items:center;gap:.4rem;color:var(--dim);font-size:.85rem}
+input[type=range]{accent-color:var(--gold);width:84px}
+h1,h2,h3,h4{font-weight:500;margin:0}
+h2{font-size:clamp(2rem,6vw,2.8rem);line-height:1.1}
+em{color:#f0dfb8}
+.eyebrow{font-family:var(--sc);letter-spacing:.22em;font-size:.8rem;color:var(--gold);text-transform:lowercase;margin:0 0 .4rem}
+.subtle{color:var(--dim)}
+.small{font-size:.88rem}
+.reveal{opacity:0;transform:translateY(6px);animation:rise 1.6s cubic-bezier(.2,.6,.2,1) forwards;animation-delay:var(--d,0s)}
+.slow{animation-duration:3.2s}
+@keyframes rise{to{opacity:1;transform:none}}
+.now .reveal{animation-delay:0s!important;animation-duration:.5s}
+
+.btn{font:inherit;font-size:1.02rem;color:var(--ink);background:rgba(10,10,16,.55);border:1px solid var(--line);padding:.55rem 1.15rem;border-radius:2px;cursor:pointer;letter-spacing:.02em;transition:border-color .3s,box-shadow .3s,background .3s}
+.btn:hover{border-color:var(--gold);box-shadow:0 0 18px rgba(226,163,90,.18)}
+.btn.primary{background:rgba(201,164,92,.16);border-color:rgba(201,164,92,.75)}
+.btn:focus-visible,.hud-btn:focus-visible{outline:1px solid var(--gold);outline-offset:3px}
+.btn[disabled]{opacity:.32;cursor:default;box-shadow:none}
+kbd{font-family:ui-monospace,Menlo,monospace;font-size:.6rem;border:1px solid rgba(232,220,196,.25);border-radius:3px;padding:1px 4px;margin-left:.5rem;color:var(--dim);vertical-align:2px}
+@media (hover:none){kbd{display:none}}
+.actions{display:flex;flex-wrap:wrap;gap:.7rem;justify-content:center;margin:1.3rem 0}
+.linkbtn{background:none;border:0;color:var(--gold);font:inherit;font-style:italic;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0}
+
+/* title */
+.title{flex:1;display:flex;flex-direction:column;justify-content:center;text-align:center;padding-bottom:40px}
+.title h1{font-size:clamp(2.8rem,9vw,5.2rem);line-height:.98;letter-spacing:.01em;margin:.4rem 0 1.2rem;text-shadow:0 0 40px rgba(226,163,90,.25)}
+.title h1 span{font-style:italic;font-size:.55em;color:var(--dim);display:inline-block;margin:0 .1em}
+.title .foot{margin-top:2.4rem;font-size:.88rem;color:var(--faint)}
+
+/* letters */
+.letter{background:linear-gradient(175deg,#ede2c8,#d9c8a2);color:var(--paper-ink);padding:2rem 2rem 1.5rem;box-shadow:0 22px 60px rgba(0,0,0,.65),inset 0 0 70px rgba(120,90,40,.28);transform:rotate(-.5deg);font-style:italic;font-size:1.12rem;line-height:1.6;max-width:580px;width:100%;margin:1.4rem auto;border-radius:2px}
+.letter:nth-child(even){transform:rotate(.4deg)}
+.letter p{margin:0 0 .8rem}
+.letter em{color:inherit}
+.letter .sig{text-align:right}
+.letter .ps{font-style:normal;font-size:.92rem;color:#6e5c44}
+.letter h4{font-family:var(--sc);font-style:normal;letter-spacing:.14em;font-size:.82rem;color:#7a6446;margin:0 0 1rem}
+.sc{font-family:var(--sc);font-style:normal;letter-spacing:.06em}
+
+/* room */
+.room-head{margin-bottom:1.4rem}
+.narr p{font-size:1.16rem;margin:0 0 1.1rem}
+.lesson{border-left:2px solid var(--gold);padding:.5rem .8rem .5rem 1rem;margin:1.2rem 0;color:#dccfb4;background:linear-gradient(90deg,rgba(201,164,92,.08),transparent)}
+.lesson h3{font-family:var(--sc);font-size:.8rem;letter-spacing:.2em;color:var(--gold);margin-bottom:.25rem}
+.lesson p{margin:0}
+.working .narr,.working .start{display:none}
+.working .lesson{font-size:.95rem}
+
+/* exercises */
+.ex{margin-top:.6rem;text-align:center;animation:rise 1s forwards;opacity:0}
+.pips{display:flex;gap:10px;justify-content:center;margin:.4rem 0 1rem;flex-wrap:wrap}
+.pips i{width:9px;height:15px;border-radius:50% 50% 45% 45%/60% 60% 40% 40%;background:#25221e;box-shadow:inset 0 0 0 1px rgba(232,220,196,.14);transition:background .6s}
+.pips i.on{background:radial-gradient(circle at 50% 70%,#fff1c9 0,#ffc66e 35%,#d9782e 78%);box-shadow:0 0 12px 2px rgba(255,170,80,.45);animation:flicker 2.6s infinite}
+@keyframes flicker{0%,100%{transform:scaleY(1);opacity:1}40%{transform:scaleY(1.1) skewX(3deg);opacity:.88}70%{transform:scaleY(.94) skewX(-2deg)}}
+.prompt{font-size:1.18rem;margin:.3rem 0}
+.feedback{min-height:3.1em;color:#d9cdb3;font-style:italic;margin:.8rem auto;max-width:580px}
+.feedback.good{color:#f0d29a}
+.hint{color:var(--gold);font-size:.95rem;min-height:1.4em;margin:.2rem 0}
+
+.tune-row{display:flex;align-items:center;justify-content:center;gap:1.2rem;margin:.8rem 0 .2rem;flex-wrap:wrap}
+.knob{width:200px;height:200px;cursor:grab;touch-action:none;border-radius:50%;outline:none;user-select:none;-webkit-user-select:none}
+.knob:active{cursor:grabbing}
+.knob:focus-visible{box-shadow:0 0 0 2px var(--gold)}
+.knob svg{width:100%;height:100%;display:block;filter:drop-shadow(0 10px 25px rgba(0,0,0,.65))}
+.knob-hint{font-size:.85rem;color:var(--faint);margin:.2rem 0 0}
+.string-view{width:100%;max-width:560px;height:80px;display:block;margin:.6rem auto 0;border-top:1px solid rgba(232,220,196,.1);border-bottom:1px solid rgba(232,220,196,.1)}
+
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.6rem;max-width:640px;margin:1rem auto}
+.opt.right{border-color:#e9c37c;background:rgba(233,195,124,.2)}
+.opt.wrong{border-color:var(--rose);opacity:.65}
+.opt .new{font-family:var(--sc);font-size:.72rem;color:var(--gold);margin-left:.45rem;letter-spacing:.1em}
+
+.keys{display:flex;justify-content:center;gap:4px;margin:1.2rem auto .4rem;max-width:560px}
+.key{flex:1;height:170px;max-width:66px;background:linear-gradient(#f4ecd8,#ddd0b1 85%,#c9b994);border:0;border-radius:0 0 6px 6px;box-shadow:0 6px 0 #8f7f5e,0 10px 20px rgba(0,0,0,.5);color:#3b2f20;font:inherit;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:.1rem;padding:0 0 .6rem;cursor:pointer;transition:transform .06s,box-shadow .06s,background .3s}
+.key:active,.key.down{transform:translateY(4px);box-shadow:0 2px 0 #8f7f5e,0 4px 10px rgba(0,0,0,.5);background:linear-gradient(#ffe9b8,#e9cf98)}
+.key.miss{background:linear-gradient(#ebcdc4,#c9a39a)}
+.key .sol{font-style:italic;font-size:1.12rem}
+.key .let{font-size:.74rem;color:#7a6a50}
+.key kbd{color:#7a6a50;border-color:rgba(0,0,0,.2);margin-left:.25rem}
+.slots{display:flex;gap:.55rem;justify-content:center;flex-wrap:wrap;min-height:2.4rem;margin:.6rem 0}
+.slots span{width:2.5rem;height:2.5rem;border-radius:50%;border:1px dashed rgba(232,220,196,.3);display:grid;place-items:center;font-style:italic;font-size:.95rem;transition:all .3s}
+.slots span.f{border-style:solid;border-color:var(--gold);color:#f0d29a;box-shadow:0 0 12px rgba(226,163,90,.2)}
+
+.score{display:flex;gap:0;justify-content:center;margin:1.2rem auto;max-width:680px;flex-wrap:wrap;row-gap:12px}
+.bar{position:relative;width:62px;height:49px;border-left:1px solid rgba(232,220,196,.3);background:repeating-linear-gradient(to bottom,rgba(232,220,196,.16) 0 1px,transparent 1px 12px);transition:background-color .4s}
+.bar i{position:absolute;width:8px;height:6px;margin:-3px 0 0 -4px;border-radius:50%;background:#e8dcc4;transform:rotate(-20deg)}
+.bar.play{background-color:rgba(226,163,90,.18)}
+.bar.empty{width:110px;border:1px dashed rgba(201,164,92,.55);display:grid;place-items:center;color:var(--gold);font-style:italic;font-size:.9rem;background-image:none}
+.bar.empty.filled{border-style:solid;background:rgba(226,163,90,.12)}
+
+/* hall */
+.hall{text-align:center}
+.facade{margin:.6rem -16px 0}
+.facade svg{width:100%;height:auto;display:block}
+.win .pane{fill:#0a0b10;stroke:#34354a;stroke-width:1.5;transition:fill 1.5s}
+.win.lit .pane{fill:url(#warm);filter:url(#glow)}
+.win.next .pane{animation:breathe 3.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{fill:#1b140c}50%{fill:#4a3216}}
+.win:not(.dark){cursor:pointer}
+.win:not(.dark):hover .pane,.win:not(.dark):focus .pane{stroke:#e9c37c;stroke-width:2.5}
+.win{outline:none}
+.mull{stroke:#090a0f;stroke-width:2.5;pointer-events:none;fill:none}
+.lamp-glow{animation:lamp 4.5s ease-in-out infinite}
+@keyframes lamp{50%{opacity:.6}}
+.win-caption{color:var(--dim);font-style:italic;min-height:1.6em;margin:.2rem 0 0}
+.ledger{list-style:none;padding:0;margin:1rem auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.5rem;max-width:820px}
+.room-btn{width:100%;display:flex;align-items:baseline;gap:.7rem;text-align:left}
+.room-btn .rn{font-family:var(--sc);color:var(--gold);min-width:1.6rem}
+.room-btn .rstat{margin-left:auto;white-space:nowrap;font-size:.82rem;color:var(--dim);font-style:italic}
+.room-btn.done .rstat{color:#f0d29a}
+
+/* found / ending */
+.found,.ending{text-align:center}
+.found .after{font-size:1.18rem;max-width:600px;margin:0 auto}
+.ending .narr p{font-size:1.25rem;max-width:600px;margin:0 auto 1.5rem}
+.ending .quote{font-style:italic;color:#f3dfb2;font-size:1.4rem}
+.ending h2{margin-top:1rem;font-style:italic}
+
+#modal{position:fixed;inset:0;z-index:10;background:rgba(4,4,8,.88);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);overflow:auto;padding:64px 16px}
+#modal .inner{max-width:640px;margin:0 auto;text-align:center}
+
+@media (max-width:540px){
+  body{font-size:17px}
+  .knob{width:168px;height:168px}
+  .key{height:140px}
+  .letter{padding:1.4rem 1.2rem 1rem;font-size:1.05rem}
+  .bar{width:44px}
+  .tune-row .btn{order:2}
+  .tune-row .knob{order:1;flex-basis:100%;margin:0 auto;max-width:168px}
+}
+@media (prefers-reduced-motion:reduce){
+  .pips i.on,.win.next .pane,.lamp-glow{animation:none}
+  .reveal{animation-duration:.01s}
+}
+</style>
+</head>
+<body>
+<canvas id="bg" aria-hidden="true"></canvas>
+<div id="vignette"></div>
+<div id="hud" hidden>
+  <button class="hud-btn" id="hudHall" hidden>← Vell Hall</button>
+  <div class="right">
+    <button class="hud-btn" id="hudLetters">Letters <span id="lc"></span></button>
+    <label class="vol" title="Volume">♪ <input type="range" id="vol" min="0" max="1" step="0.01" aria-label="Volume"></label>
+  </div>
+</div>
+<main id="app"></main>
+
+<script>
+(() => {
+'use strict';
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+const NOTE = ['C','C♯','D','E♭','E','F','F♯','G','A♭','A','B♭','B'];
+const nname = m => NOTE[m % 12] + '<sub>' + (Math.floor(m / 12) - 1) + '</sub>';
+const rnd = (a, b) => a + Math.random() * (b - a);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+/* ───────────── save ───────────── */
+const KEY = 'vellhall.v1';
+const fresh = () => ({ started: false, done: [], ended: false, vol: 0.8 });
+const state = Object.assign(fresh(), (() => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } })());
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+
+/* ───────────── story ───────────── */
+const OPENING = `
+<p>Dear tuner,</p>
+<p>Vell Hall has been sold. On the first of next month they will take out the instruments and, I am told, most of the walls.</p>
+<p>My mother, Ada Vell, kept that conservatory for thirty-one years. It has been silent for forty. Everything in it will have drifted: strings, pins, the old organ in the loft. Like the rest of us.</p>
+<p>I would like to hear it once more, in tune. I can no longer manage the stairs, but I can manage the gate. I will be there in the evenings.</p>
+<p>The key is under the third stone by the door. Please begin with the upright in the foyer; she was always the first to forgive.</p>
+<p class="sig">— Elodie Vell</p>`;
+
+const FINAL = `<p>That's the one. That was always the one.</p><p>Thank you.</p><p class="sig">— E.</p>`;
+
+const ROOMS = [
+  {
+    num: 'I', name: 'The Foyer', inst: 'an upright piano', tint: [226, 163, 90], drone: 33,
+    intro: [
+      `The key turns on the second try. Inside, the air tastes of cold dust and old varnish, and rain ticks against the fanlight above the door.`,
+      `In the foyer, under a sheet gone grey, an upright piano waits where students once sat with their cases on their knees, pretending not to be nervous.`,
+      `You lift the lid. Most notes are struck by three strings at once, and over forty winters those strings have wandered apart. When two strings almost agree, you hear it as a wavering in the sound: <em>beats</em>. The further apart, the faster they beat.`
+    ],
+    lesson: `Strike both strings. Turn the pin slowly, then strike again. If the beats get <em>faster</em>, you are going the wrong way. When the note goes perfectly still, set the pin.`,
+    ex: { type: 'tune', mode: 'unison', rounds: [{ ref: 57, off: 30, tol: 3 }, { ref: 62, off: 22, tol: 2.5 }, { ref: 53, off: 16, tol: 2 }] },
+    after: `The upright gives one long, clean note back to the dark. The foyer seems to lean in to listen.`,
+    found: { t: 'A welcome card, behind the music desk', b: `
+      <p>Welcome to Vell Hall, Autumn Term 1962.</p>
+      <p>Practise slowly. Listen longer than you play. Be kind to the instruments; they remember everything.</p>
+      <p class="sig">— A. Vell, Director</p>
+      <p class="ps">On the back, in a child's careful pencil: <em>and Elodie Vell, Assistant Director (age 6)</em></p>` }
+  },
+  {
+    num: 'II', name: 'The Practice Rooms', inst: 'six small pianos', tint: [150, 170, 210], drone: 38,
+    intro: [
+      `A corridor of narrow doors, each with a round window at eye height. Behind them, rooms just big enough for one piano and one person's worry.`,
+      `Someone has scratched tally marks into the frame of Room 4. Hundreds of them, in tidy bundles of five.`,
+      `Here you tune octaves. A note and the note above it share a hidden tone: the upper string's voice lives inside the lower string's sound, as its second <em>partial</em>. When the octave is wrong, those two beat against each other. It is quieter than a unison, so you have to listen <em>inside</em> the sound.`
+    ],
+    lesson: `Your pin moves the upper string. Listen to the top of the sound, not the bottom. The beats are gentler here, so take your time. Real strings are a little stiff, and a true octave sits a hair wide. Trust your ear over arithmetic.`,
+    ex: { type: 'tune', mode: 'octave', rounds: [{ ref: 45, off: 24, tol: 3.5 }, { ref: 50, off: 18, tol: 3 }, { ref: 43, off: 15, tol: 2.6 }] },
+    after: `Up and down the corridor, the little pianos hum together. For a moment it sounds like a school again.`,
+    found: { t: 'Pencil, on the wall of Room 4', b: `
+      <p>E.V. — practice hours, 1968–1979.<br>Mother says one more year. She always says one more year.</p>
+      <p class="ps">Beneath it, smaller, in a different hand:</p>
+      <p>You don't have to be good. You only have to be here.<br>— Mum</p>` }
+  },
+  {
+    num: 'III', name: 'The Recital Room', inst: 'a stage piano', tint: [205, 130, 135], drone: 36,
+    intro: [
+      `Rows of velvet chairs face a small stage. The velvet has faded to the colour of old roses.`,
+      `On the stage: a cello stand with no cello, and a piano with its lid still raised, as if the concert had only paused.`,
+      `Every melody is made of distances between notes: <em>intervals</em>. A tuner learns to hear them the way a sailor hears weather. The piano will play two notes, one after the other, then together. Name the distance.`
+    ],
+    lesson: `Listen for the <em>character</em> of a distance, not its size. Each one hides a tune you may already know, and you will be told it as you go. New distances join as you light more candles.`,
+    ex: { type: 'quiz', kind: 'interval', need: 12, stages: [{ at: 0, o: ['M3', 'P5', 'P8'] }, { at: 4, o: ['P4', 'm3'] }, { at: 8, o: ['M6', 'm2'] }] },
+    after: `When you lower the lid, the velvet chairs look less like an audience that left and more like one about to arrive.`,
+    found: { t: 'A programme, beneath the third row', b: `
+      <p><span class="sc">Vell Hall Spring Recital · 12 May 1979</span><br>Elodie Vell, violoncello — J. S. Bach, Suite No. 5 in C minor.</p>
+      <p class="ps">Her name has been struck through with a single line. Beside it, in the director's hand:</p>
+      <p>She played the first four bars, set the bow down, and walked out into the rain. They were the most beautiful four bars I have ever heard. I did not tell her so.</p>` }
+  },
+  {
+    num: 'IV', name: 'The Choir Loft', inst: 'a reed organ', tint: [170, 140, 210], drone: 29,
+    intro: [
+      `A spiral stair climbs to the choir loft: an old reed organ, and a wall of hymn books swollen with damp.`,
+      `From up here you can see the whole hall below and, through the tall window, the iron gate. A small lamp is burning beside it.`,
+      `A chord is three notes stacked, and their spacing gives each chord a colour. The organ will sing a chord one voice at a time. Tell it what colour it is.`
+    ],
+    lesson: `<b>Major</b>: bright, settled. <b>Minor</b>: darker, turned inward. <b>Diminished</b>: tense, folding in on itself. <b>Augmented</b>: floating, unresolved, a question asked in a dream. Listen to the moment the third voice arrives.`,
+    ex: { type: 'quiz', kind: 'chord', need: 10, stages: [{ at: 0, o: ['maj', 'min'] }, { at: 4, o: ['dim'] }, { at: 7, o: ['aug'] }] },
+    after: `The organ breathes out its last chord and the loft fills with it, like a lung. Down at the gate, the lamp has not moved.`,
+    found: { t: 'A diary page, folded into a hymn book', b: `
+      <p>November 1979.</p>
+      <p>E. has gone north to train as a nurse. She says music asked too much of her and gave back only me.</p>
+      <p>I have written her eleven letters and posted none. I have started a lullaby instead, the one I used to hum her before she could talk. I cannot find its ending. I keep arriving at the last bar and there is nothing there.</p>` }
+  },
+  {
+    num: 'V', name: 'The Library', inst: 'a phonograph', tint: [190, 175, 110], drone: 31,
+    intro: [
+      `The library smells of foxed paper and candle wax. Scores bound in green cloth, shelved by composer, by year, by grief.`,
+      `On the reading desk: an old phonograph and a single wax cylinder in a tin. The label reads <em>E., age six, humming. Do not lend.</em>`,
+      `You wind it. Through the hiss comes a child's voice. Not singing, just humming: a small tune that wanders off and comes home. A tuner who can only tune is half a tuner. Write down what you hear.`
+    ],
+    lesson: `Before each fragment you will hear <em>do</em>, the home note. Then the cylinder plays. Find its notes on the keys, in order. Replay it as often as you like. Hearing how far each note sits from <em>do</em> is the whole skill.`,
+    ex: { type: 'dictate', voice: 'hum', rounds: [[0, 1, 2], [4, 2, 1], [2, 4, 5, 4], [4, 2, 1, 0], [2, 4, 5, 4, 2, 1, 0]],
+      lines: [null, null, null, null, `That is the whole of it. But that is not how the lullaby goes. Not the way it was written.`] },
+    after: `You lift the needle. The hiss stops, and the room is emptier than before you came.`,
+    found: { t: 'A manuscript, under the cylinder tin', b: `
+      <p><span class="sc">Lullaby for E.</span></p>
+      <p class="ps">Eight bars, written and rewritten. After them, one empty bar, its staff scored through with so many attempts the paper has nearly worn away. In the margin:</p>
+      <p>She used to hum it wrong at the end. Every night. I corrected her every night.</p>
+      <p>I think wrong was the ending. I think she knew it before I did.</p>` }
+  },
+  {
+    num: 'VI', name: 'The Great Hall', inst: 'the concert grand', tint: [240, 205, 150], drone: 33,
+    intro: [
+      `The great hall is dark except for the rain-light through the rose window. In the middle, under a dust sheet the size of a sail, stands the concert grand.`,
+      `When you draw the sheet away, the dust goes up like breath on a cold night.`,
+      `Down at the gate, the small lamp is still burning.`
+    ],
+    lesson: `One last unison: the A, the note every orchestra tunes to. Then set the manuscript on the desk and play what it was missing.`,
+    ex: { type: 'finale' },
+    after: '', found: null
+  }
+];
+
+const END_TEXT = [
+  `You play it from the beginning. This time the last bar is not empty.`,
+  `The sound goes out of the great hall, down the stairs, past the choir loft and the faded velvet and the narrow doors, through the foyer, and out into the rain.`,
+  `At the gate, the small lamp lifts. It stays lifted until the last note is gone.`,
+  `In the morning there is an envelope under the door. One line, in a hand that shakes a little:`,
+  `<span class="quote">“That's the one. That was always the one. Thank you. — E.”</span>`,
+  `Vell Hall closes on the first of the month. It closes in tune.`
+];
+
+/* ───────────── music data ───────────── */
+// Ada's eight bars, in 3/4: [midi, beats]
+const LULL_A = [[67,1],[64,1],[62,1],[60,2],[62,1],[64,1],[67,1],[64,1],[62,3],[60,1],[62,1],[64,1],[67,1.5],[69,.5],[67,1],[64,1],[62,1],[60,1],[62,3]];
+// the child's "wrong" ending
+const LULL_END = [[64,1],[67,1],[69,1],[67,2],[64,1],[62,2],[60,4]];
+const END_DEG = [2, 4, 5, 4, 2, 1, 0];
+const END_RHY = [.62, .62, .62, 1.1, .55, .95, 1.6];
+const CHORDS_A = [[48,'M'],[45,'m'],[48,'M'],[43,'M'],[41,'M'],[48,'M'],[45,'m'],[43,'M']];
+const CHORDS_END = [[41,'M'],[48,'M'],[43,'M'],[45,'m']];
+
+const INTERVALS = {
+  m2: { n: 'Minor second', s: 1, h: 'close and uneasy, like the shark in “Jaws”' },
+  m3: { n: 'Minor third', s: 3, h: 'wistful, like the opening of “Greensleeves”' },
+  M3: { n: 'Major third', s: 4, h: 'sweet and open, like “Oh, When the Saints”' },
+  P4: { n: 'Perfect fourth', s: 5, h: 'a call to attention, like “Here Comes the Bride”' },
+  P5: { n: 'Perfect fifth', s: 7, h: 'hollow and strong, like the leap in “Twinkle, Twinkle”' },
+  M6: { n: 'Major sixth', s: 9, h: 'warm and reaching, like “My Bonnie Lies Over the Ocean”' },
+  P8: { n: 'Octave', s: 12, h: 'the same note, one floor up, like “Somewhere Over the Rainbow”' }
+};
+const CHORDS = {
+  maj: { n: 'Major', iv: [0, 4, 7], h: 'bright and settled' },
+  min: { n: 'Minor', iv: [0, 3, 7], h: 'darker, turned inward' },
+  dim: { n: 'Diminished', iv: [0, 3, 6], h: 'tense, folding in on itself' },
+  aug: { n: 'Augmented', iv: [0, 4, 8], h: 'floating and unresolved, a question asked in a dream' }
+};
+const GOOD_TUNE = ['The note goes still.', 'The two strings agree at last.', 'It rings clean, like a held breath let go.', 'Stillness. The pin holds.'];
+const GOOD_DICT = ['Yes. That is what she hummed.', 'Exactly that.', 'The cylinder hisses on, but you have it.'];
+
+/* ───────────── audio ───────────── */
+let ctx = null, master, dry, wet, noiseBuf, amb = {}, quiet = false, nextDistant = 0, lullSched = null;
+const B_INH = 0.00035; // string stiffness → slightly sharp upper partials
+
+function audio() {
+  if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return; }
+  ctx = new (window.AudioContext || window.webkitAudioContext)();
+  master = ctx.createGain(); master.gain.value = state.vol;
+  const comp = ctx.createDynamicsCompressor();
+  comp.threshold.value = -16; comp.knee.value = 12; comp.ratio.value = 3; comp.attack.value = .01; comp.release.value = .3;
+  master.connect(comp); comp.connect(ctx.destination);
+  dry = ctx.createGain(); dry.connect(master);
+  const conv = ctx.createConvolver(); conv.buffer = impulse(3.6, 2.3);
+  wet = ctx.createGain(); wet.gain.value = .85; wet.connect(conv); conv.connect(master);
+  noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+  const nd = noiseBuf.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+  startAmbience();
+}
+
+// A hall that gets darker as it decays, like stone and velvet do.
+function impulse(sec, decay) {
+  const n = Math.floor(ctx.sampleRate * sec), b = ctx.createBuffer(2, n, ctx.sampleRate);
+  for (let c = 0; c < 2; c++) {
+    const d = b.getChannelData(c); let lp = 0;
+    for (let i = 0; i < n; i++) {
+      lp += ((Math.random() * 2 - 1) - lp) * (0.55 - 0.47 * i / n);
+      d[i] = lp * Math.pow(1 - i / n, decay) * (i < ctx.sampleRate * .012 ? i / (ctx.sampleRate * .012) : 1);
+    }
+  }
+  return b;
+}
+
+function bus(pan = 0, send = .3) {
+  const g = ctx.createGain(); let node = g;
+  if (ctx.createStereoPanner) { const p = ctx.createStereoPanner(); p.pan.value = pan; g.connect(p); node = p; }
+  node.connect(dry);
+  const s = ctx.createGain(); s.gain.value = send; node.connect(s); s.connect(wet);
+  return g;
+}
+
+function piano(midi, o = {}) {
+  const t = o.t ?? ctx.currentTime + .01, vel = o.vel ?? .6, sus = o.sus ?? 1, f = mtof(midi);
+  const out = bus(o.pan ?? 0, o.send ?? .32);
+  if (o.tap) out.connect(o.tap);
+  const oscs = [], parts = o.parts ?? 9;
+  const tau1 = (1.1 + 1.6 * sus) * Math.pow(261.6 / f, .35);
+  for (let n = 1; n <= parts; n++) {
+    const fn = f * n * Math.sqrt(1 + B_INH * n * n);
+    if (fn > 15000) break;
+    const os = ctx.createOscillator(); os.frequency.value = fn; os.detune.value = o.detune || 0;
+    const gn = ctx.createGain();
+    const amp = vel * .16 * Math.pow(n, -1.25) * (n === 1 ? .85 : 1) * (n > 3 ? .7 + vel * .6 : 1);
+    const tau = tau1 / Math.pow(n, .65);
+    gn.gain.setValueAtTime(0, t);
+    gn.gain.linearRampToValueAtTime(amp, t + .003 + .0015 * n);
+    gn.gain.setTargetAtTime(amp * .55, t + .01, .09);
+    gn.gain.setTargetAtTime(0, t + .14, tau);
+    os.connect(gn); gn.connect(out);
+    os.start(t); os.stop(t + .14 + tau * 5.5);
+    oscs.push(os);
+  }
+  const nz = ctx.createBufferSource(); nz.buffer = noiseBuf;
+  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = Math.min(4000, f * 3); bp.Q.value = 1.2;
+  const ng = ctx.createGain(); ng.gain.setValueAtTime(vel * .05, t); ng.gain.exponentialRampToValueAtTime(.0001, t + .045);
+  nz.connect(bp); bp.connect(ng); ng.connect(out); nz.start(t, Math.random() * 1.8); nz.stop(t + .06);
+  return {
+    detune(c) { oscs.forEach(x => x.detune.setTargetAtTime(c, ctx.currentTime, .015)); },
+    stop() {
+      const n = ctx.currentTime;
+      out.gain.cancelScheduledValues(n); out.gain.setValueAtTime(out.gain.value, n); out.gain.setTargetAtTime(0, n, .06);
+      oscs.forEach(x => { try { x.stop(n + .5); } catch (e) {} });
+    }
+  };
+}
+
+// Reed organ / choir: detuned saws through "ah" formants.
+function choir(midis, o = {}) {
+  const t = o.t ?? ctx.currentTime + .02, dur = o.dur ?? 3, vel = o.vel ?? .5, stg = o.stagger ?? .35;
+  const out = bus(o.pan ?? 0, o.send ?? .55);
+  const inp = ctx.createGain();
+  [[650, 7, 1], [1080, 9, .5], [2650, 12, .22], [330, 3, .7]].forEach(([fr, q, a]) => {
+    const bf = ctx.createBiquadFilter(); bf.type = 'bandpass'; bf.frequency.value = fr; bf.Q.value = q;
+    const gg = ctx.createGain(); gg.gain.value = a * 2.4;
+    inp.connect(bf); bf.connect(gg); gg.connect(out);
+  });
+  const last = t + stg * (midis.length - 1) + dur;
+  midis.forEach((m, i) => {
+    const st = t + i * stg;
+    [-6, 6].forEach(dc => {
+      const os = ctx.createOscillator(); os.type = 'sawtooth'; os.frequency.value = mtof(m); os.detune.value = dc;
+      const lfo = ctx.createOscillator(); lfo.frequency.value = 4.3 + Math.random() * .9;
+      const lg = ctx.createGain(); lg.gain.value = 8; lfo.connect(lg); lg.connect(os.detune);
+      const gn = ctx.createGain();
+      gn.gain.setValueAtTime(0, st); gn.gain.linearRampToValueAtTime(vel * .07, st + .45);
+      gn.gain.setValueAtTime(vel * .07, last); gn.gain.linearRampToValueAtTime(0, last + .9);
+      os.connect(gn); gn.connect(inp);
+      os.start(st); lfo.start(st); os.stop(last + 1); lfo.stop(last + 1);
+    });
+  });
+}
+
+function bell(midi, o = {}) {
+  const t = o.t ?? ctx.currentTime + .01, vel = o.vel ?? .35, f = mtof(midi);
+  const out = bus(o.pan ?? 0, o.send ?? .45);
+  [[1, 1, 1.4], [2.76, .32, .5], [5.4, .12, .25], [8.93, .05, .12]].forEach(([r, a, d]) => {
+    const os = ctx.createOscillator(); os.frequency.value = f * r;
+    const gn = ctx.createGain();
+    gn.gain.setValueAtTime(0, t); gn.gain.linearRampToValueAtTime(vel * a * .2, t + .002);
+    gn.gain.exponentialRampToValueAtTime(.0001, t + d * 2.5);
+    os.connect(gn); gn.connect(out); os.start(t); os.stop(t + d * 2.5 + .05);
+  });
+}
+
+// A child humming, heard through a wax cylinder.
+function hum(midi, o = {}) {
+  const t = o.t ?? ctx.currentTime + .01, dur = o.dur ?? .55, vel = o.vel ?? .5, f = mtof(midi);
+  const out = bus(o.pan ?? 0, o.send ?? .25);
+  const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 230;
+  const pk = ctx.createBiquadFilter(); pk.type = 'peaking'; pk.frequency.value = 950; pk.Q.value = 1; pk.gain.value = 6;
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2300;
+  hp.connect(pk); pk.connect(lp); lp.connect(out);
+  const gn = ctx.createGain();
+  gn.gain.setValueAtTime(0, t); gn.gain.linearRampToValueAtTime(vel * .3, t + .07);
+  gn.gain.setValueAtTime(vel * .3, t + dur - .06); gn.gain.linearRampToValueAtTime(0, t + dur + .08);
+  gn.connect(hp);
+  const lfo = ctx.createOscillator(); lfo.frequency.value = 5.3;
+  const lg = ctx.createGain(); lg.gain.setValueAtTime(0, t); lg.gain.linearRampToValueAtTime(f * .008, t + .25);
+  lfo.connect(lg);
+  [['triangle', 1], ['sine', .6]].forEach(([type, a]) => {
+    const os = ctx.createOscillator(); os.type = type;
+    os.frequency.setValueAtTime(f * .965, t); os.frequency.exponentialRampToValueAtTime(f, t + .09);
+    lg.connect(os.frequency);
+    const ag = ctx.createGain(); ag.gain.value = a;
+    os.connect(ag); ag.connect(gn); os.start(t); os.stop(t + dur + .15);
+  });
+  lfo.start(t); lfo.stop(t + dur + .15);
+}
+
+function cylinder(t, dur) {
+  const out = bus(0, .08);
+  const src = ctx.createBufferSource(); src.buffer = noiseBuf; src.loop = true;
+  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 3200; bp.Q.value = .6;
+  const gn = ctx.createGain();
+  gn.gain.setValueAtTime(0, t); gn.gain.linearRampToValueAtTime(.045, t + .3);
+  gn.gain.setValueAtTime(.045, t + dur); gn.gain.linearRampToValueAtTime(0, t + dur + .5);
+  src.connect(bp); bp.connect(gn); gn.connect(out); src.start(t); src.stop(t + dur + .6);
+  for (let k = 0; k < dur * 8; k++) {
+    const ct = t + Math.random() * dur;
+    const c = ctx.createBufferSource(); c.buffer = noiseBuf;
+    const hf = ctx.createBiquadFilter(); hf.type = 'highpass'; hf.frequency.value = 1500;
+    const cg = ctx.createGain(); cg.gain.setValueAtTime(.16 * Math.random(), ct); cg.gain.exponentialRampToValueAtTime(.0001, ct + .008);
+    c.connect(hf); hf.connect(cg); cg.connect(out); c.start(ct, Math.random() * 1.5); c.stop(ct + .02);
+  }
+}
+
+const sfx = {
+  chime(v = .2) { const t = ctx.currentTime + .02; [72, 76, 79, 84].forEach((m, i) => bell(m, { t: t + i * .11, vel: v })); },
+  settle() { bell(81, { vel: .14 }); bell(88, { t: ctx.currentTime + .16, vel: .09 }); },
+  soft() { piano(45, { vel: .12, sus: .3, parts: 4, send: .5 }); },
+  tick() {
+    const t = ctx.currentTime, s = ctx.createBufferSource(); s.buffer = noiseBuf;
+    const hf = ctx.createBiquadFilter(); hf.type = 'bandpass'; hf.frequency.value = 2600; hf.Q.value = 3;
+    const g = ctx.createGain(); g.gain.setValueAtTime(.05, t); g.gain.exponentialRampToValueAtTime(.0001, t + .012);
+    s.connect(hf); hf.connect(g); g.connect(dry); s.start(t, Math.random()); s.stop(t + .02);
+  },
+  page() {
+    const t = ctx.currentTime, s = ctx.createBufferSource(); s.buffer = noiseBuf;
+    const bf = ctx.createBiquadFilter(); bf.type = 'bandpass'; bf.Q.value = .8;
+    bf.frequency.setValueAtTime(900, t); bf.frequency.exponentialRampToValueAtTime(3000, t + .25);
+    const g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.07, t + .05); g.gain.exponentialRampToValueAtTime(.0001, t + .35);
+    s.connect(bf); bf.connect(g); g.connect(bus(0, .2)); s.start(t, Math.random()); s.stop(t + .4);
+  },
+  creak() {
+    const t = ctx.currentTime + .05, os = ctx.createOscillator(); os.type = 'sawtooth';
+    os.frequency.setValueAtTime(70, t); os.frequency.linearRampToValueAtTime(115, t + .5); os.frequency.linearRampToValueAtTime(90, t + .9);
+    const bf = ctx.createBiquadFilter(); bf.type = 'bandpass'; bf.frequency.value = 650; bf.Q.value = 9;
+    const g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.05, t + .1); g.gain.linearRampToValueAtTime(0, t + 1);
+    os.connect(bf); bf.connect(g); g.connect(bus(-.3, .7)); os.start(t); os.stop(t + 1.05);
+  }
+};
+
+function startAmbience() {
+  const noise = () => { const s = ctx.createBufferSource(); s.buffer = noiseBuf; s.loop = true; s.start(); return s; };
+  // rain
+  const rhp = ctx.createBiquadFilter(); rhp.type = 'highpass'; rhp.frequency.value = 450;
+  const rlp = ctx.createBiquadFilter(); rlp.type = 'lowpass'; rlp.frequency.value = 4200;
+  const rg = ctx.createGain(); rg.gain.value = 0;
+  noise().connect(rhp); rhp.connect(rlp); rlp.connect(rg); rg.connect(master);
+  // wind
+  const wbp = ctx.createBiquadFilter(); wbp.type = 'bandpass'; wbp.frequency.value = 380; wbp.Q.value = 4;
+  const wlfo = ctx.createOscillator(); wlfo.frequency.value = .045;
+  const wl = ctx.createGain(); wl.gain.value = 220; wlfo.connect(wl); wl.connect(wbp.frequency); wlfo.start();
+  const wg = ctx.createGain(); wg.gain.value = 0;
+  noise().connect(wbp); wbp.connect(wg); wg.connect(master);
+  // a low, breathing room tone
+  const dlp = ctx.createBiquadFilter(); dlp.type = 'lowpass'; dlp.frequency.value = 360;
+  const dg = ctx.createGain(); dg.gain.value = 0;
+  const d1 = ctx.createOscillator(); d1.type = 'triangle';
+  const d2 = ctx.createOscillator(); d2.detune.value = 7;
+  const d3 = ctx.createOscillator();
+  const d3g = ctx.createGain(); d3g.gain.value = .35;
+  d1.connect(dlp); d2.connect(dlp); d3.connect(d3g); d3g.connect(dlp);
+  dlp.connect(dg); dg.connect(master);
+  const ds = ctx.createGain(); ds.gain.value = .4; dg.connect(ds); ds.connect(wet);
+  [d1, d2, d3].forEach(o => o.start());
+  amb = { rg, rlp, wg, dg, d1, d2, d3 };
+  applyAmb();
+  setInterval(distantTick, 1000);
+}
+
+function applyAmb() {
+  if (!ctx || !amb.rg) return;
+  const t = ctx.currentTime, out = scene.mode === 'outside', q = quiet ? .45 : 1;
+  amb.rg.gain.setTargetAtTime((out ? .05 : .02) * q, t, 1.2);
+  amb.rlp.frequency.setTargetAtTime(out ? 4200 : 1300, t, 1.2);
+  amb.wg.gain.setTargetAtTime((out ? .014 : .02) * q, t, 2);
+  amb.dg.gain.setTargetAtTime(quiet ? 0 : (out ? .016 : .03), t, 1.5);
+  const f = mtof(scene.drone);
+  amb.d1.frequency.setTargetAtTime(f, t, 1.2); amb.d2.frequency.setTargetAtTime(f, t, 1.2); amb.d3.frequency.setTargetAtTime(f * 1.5, t, 1.2);
+}
+function setQuiet(b) { quiet = b; applyAmb(); }
+
+// The hall hums back the rooms you've mended.
+function distantTick() {
+  if (quiet || document.hidden || !state.done.length || ctx.currentTime < nextDistant) return;
+  nextDistant = ctx.currentTime + rnd(10, 18);
+  const i = pick(state.done), start = Math.floor(rnd(0, LULL_A.length - 3));
+  const pan = rnd(-.7, .7); let t = ctx.currentTime + .1;
+  LULL_A.slice(start, start + 2 + Math.floor(rnd(0, 2))).forEach(([m, d]) => {
+    const o = { t, vel: .12, pan, send: 1.1 };
+    if (i === 3) choir([m], { t, dur: d * .8, stagger: 0, vel: .2, pan, send: 1.1 });
+    else if (i === 4) hum(m, { ...o, vel: .2, dur: d * .6 });
+    else piano(m, o);
+    t += d * .85;
+  });
+}
+
+// Lookahead scheduler so long passages don't build hundreds of nodes at once.
+function schedule(events) {
+  events.sort((a, b) => a.t - b.t);
+  const t0 = ctx.currentTime + .15; let i = 0;
+  const run = () => {
+    const now = ctx.currentTime;
+    while (i < events.length && t0 + events[i].t < now + .6) { events[i].fn(t0 + events[i].t); i++; }
+    if (i >= events.length) clearInterval(id);
+  };
+  const id = setInterval(run, 60); run();
+  return { cancel() { clearInterval(id); } };
+}
+const atTime = (at, fn) => setTimeout(fn, Math.max(0, (at - ctx.currentTime) * 1000));
+
+function playLullaby({ end = false, full = false, onBar } = {}) {
+  audio();
+  if (lullSched) lullSched.cancel();
+  const beat = full ? .82 : .74, ev = [];
+  const mel = end ? LULL_A.concat(LULL_END) : LULL_A;
+  const chords = end ? CHORDS_A.concat(CHORDS_END) : CHORDS_A;
+  let pos = 0;
+  mel.forEach(([m, d], idx) => {
+    const inEnd = idx >= LULL_A.length;
+    ev.push({ t: pos * beat, fn: at => { piano(m, { t: at, vel: .5 + Math.random() * .06, sus: .9, pan: .1 }); if (full && inEnd) bell(m + 12, { t: at, vel: .22 }); } });
+    pos += d;
+  });
+  chords.forEach(([root, q], b) => {
+    const iv = q === 'M' ? [0, 4, 7] : [0, 3, 7], lastBar = b === chords.length - 1;
+    ev.push({ t: b * 3 * beat, fn: at => {
+      piano(root, { t: at, vel: .3, sus: .8, parts: 6, pan: -.2 });
+      piano(root + 12 + iv[1], { t: at + beat, vel: .17, parts: 5, pan: -.15 });
+      piano(root + 12 + iv[2], { t: at + beat * 2, vel: .17, parts: 5, pan: -.15 });
+      if (full) choir(iv.map(x => root + 12 + x), { t: at, dur: lastBar ? 6 : beat * 3 - .3, stagger: 0, vel: .22, send: .8 });
+      if (onBar) atTime(at, () => onBar(b));
+    } });
+  });
+  lullSched = schedule(ev);
+  return pos * beat + (full ? 4 : 1.2);
+}
+
+function humPhrase(deg) {
+  audio();
+  const SC = [60, 62, 64, 65, 67, 69, 71, 72];
+  const t = ctx.currentTime + .05;
+  piano(60, { t, vel: .32, sus: .6 });
+  const full = deg.length === END_DEG.length && deg.every((d, i) => d === END_DEG[i]);
+  const rhy = full ? END_RHY : deg.map((_, i) => i === deg.length - 1 ? 1 : .62);
+  const len = rhy.reduce((a, b) => a + b, 0);
+  cylinder(t + 1.1, len + .6);
+  let tt = t + 1.4;
+  deg.forEach((d, i) => { hum(SC[d], { t: tt, dur: rhy[i] * .92 }); tt += rhy[i]; });
+  return tt - ctx.currentTime;
+}
+
+/* ───────────── background ───────────── */
+const cv = $('#bg'), g2 = cv.getContext('2d');
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const scene = { mode: 'outside', tint: [226, 163, 90], target: [226, 163, 90], warmth: .1, targetWarmth: .15, drone: 33 };
+let W = 0, H = 0, DPR = 1, lastTs = 0;
+const rain = Array.from({ length: reduced ? 40 : 170 }, () => ({ x: Math.random(), y: Math.random(), l: .015 + Math.random() * .035, s: .5 + Math.random() * .8 }));
+const motes = Array.from({ length: reduced ? 18 : 70 }, () => ({ x: Math.random(), y: Math.random(), r: .5 + Math.random() * 1.7, vx: (Math.random() - .5) * .00006, vy: -.00001 - Math.random() * .00004, p: Math.random() * 6.28 }));
+function resize() { DPR = Math.min(2, devicePixelRatio || 1); W = cv.width = innerWidth * DPR; H = cv.height = innerHeight * DPR; }
+addEventListener('resize', resize); resize();
+
+function frame(ts) {
+  const dt = Math.min(50, ts - (lastTs || ts)) / 16.7; lastTs = ts;
+  scene.warmth += (scene.targetWarmth - scene.warmth) * .02 * dt;
+  scene.tint = scene.tint.map((c, i) => c + (scene.target[i] - c) * .02 * dt);
+  const [r, g, b] = scene.tint.map(Math.round), out = scene.mode === 'outside';
+  const grd = g2.createLinearGradient(0, 0, 0, H);
+  grd.addColorStop(0, out ? '#05060c' : '#07070b'); grd.addColorStop(1, out ? '#0c0d16' : '#110e10');
+  g2.fillStyle = grd; g2.fillRect(0, 0, W, H);
+  const rg = g2.createRadialGradient(W * .5, H * .9, 0, W * .5, H * .9, Math.max(W, H) * .8);
+  rg.addColorStop(0, `rgba(${r},${g},${b},${.26 * scene.warmth})`); rg.addColorStop(1, 'rgba(0,0,0,0)');
+  g2.fillStyle = rg; g2.fillRect(0, 0, W, H);
+  if (out) {
+    const mg = g2.createRadialGradient(W * .82, H * .1, 0, W * .82, H * .1, W * .35);
+    mg.addColorStop(0, 'rgba(150,170,215,.10)'); mg.addColorStop(1, 'rgba(0,0,0,0)');
+    g2.fillStyle = mg; g2.fillRect(0, 0, W, H);
+  }
+  // rain
+  g2.strokeStyle = `rgba(170,185,220,${out ? .17 : .05})`; g2.lineWidth = DPR; g2.beginPath();
+  for (const d of rain) {
+    if (!reduced) { d.y += d.s * .011 * dt; d.x -= d.s * .0025 * dt; }
+    if (d.y > 1.05) { d.y = -.05; d.x = Math.random() * 1.1; }
+    g2.moveTo(d.x * W, d.y * H); g2.lineTo((d.x - d.l * .22) * W, (d.y + d.l) * H);
+  }
+  g2.stroke();
+  // dust in candlelight
+  if (!out) {
+    for (const m of motes) {
+      m.x += m.vx * dt * 16; m.y += m.vy * dt * 16; m.p += .01 * dt;
+      if (m.y < -.02) m.y = 1.02; if (m.x < -.02) m.x = 1.02; if (m.x > 1.02) m.x = -.02;
+      const a = (.18 + .22 * Math.sin(m.p + ts * .0007)) * (.35 + scene.warmth);
+      g2.fillStyle = `rgba(${Math.min(255, r + 30)},${Math.min(255, g + 40)},${Math.min(255, b + 50)},${Math.max(0, a)})`;
+      g2.beginPath(); g2.arc(m.x * W, m.y * H, m.r * DPR, 0, 6.28); g2.fill();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+function setScene(mode, tint = [226, 163, 90], warmth = .3, drone = 33) {
+  scene.mode = mode; scene.target = tint; scene.targetWarmth = warmth; scene.drone = drone;
+  applyAmb();
+}
+
+/* ───────────── screen plumbing ───────────── */
+const app = $('#app'), hud = $('#hud');
+let disposers = [], keyHandler = null;
+const onDispose = fn => disposers.push(fn);
+function show(html, cls = '') {
+  disposers.forEach(fn => fn()); disposers = []; keyHandler = null;
+  if (lullSched) { lullSched.cancel(); lullSched = null; }
+  app.className = cls; app.innerHTML = html; scrollTo(0, 0);
+  updateHud();
+}
+document.addEventListener('keydown', e => {
+  if ($('#modal')) { if (e.key === 'Escape') closeModal(); return; }
+  if (e.target.tagName === 'INPUT' || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (keyHandler) keyHandler(e);
+});
+function updateHud() {
+  hud.hidden = !state.started;
+  $('#hudHall').hidden = true;
+  $('#lc').textContent = '(' + letterList().length + ')';
+}
+$('#vol').value = state.vol;
+$('#vol').addEventListener('input', e => {
+  state.vol = +e.target.value; save();
+  if (ctx) master.gain.setTargetAtTime(state.vol, ctx.currentTime, .05);
+});
+$('#hudHall').addEventListener('click', () => { audio(); hall(); });
+$('#hudLetters').addEventListener('click', () => { audio(); letters(); });
+
+function letterList() {
+  const items = [{ h: 'A letter, with a key', b: OPENING }];
+  state.done.forEach(i => { const f = ROOMS[i].found; if (f) items.push({ h: `${ROOMS[i].num} · ${f.t}`, b: f.b }); });
+  if (state.ended) items.push({ h: 'An envelope, under the door', b: FINAL });
+  return items;
+}
+function letters() {
+  if (ctx) sfx.page();
+  const m = document.createElement('div'); m.id = 'modal';
+  m.innerHTML = `<div class="inner"><p class="eyebrow">Gathered in your coat pocket</p><h2>Letters</h2>
+    ${letterList().map(l => `<article class="letter"><h4>${l.h}</h4>${l.b}</article>`).join('')}
+    <div class="actions"><button class="btn" id="closeM">Close<kbd>Esc</kbd></button></div></div>`;
+  document.body.appendChild(m);
+  m.addEventListener('click', e => { if (e.target === m) closeModal(); });
+  $('#closeM').addEventListener('click', closeModal); $('#closeM').focus();
+}
+function closeModal() { const m = $('#modal'); if (m) m.remove(); }
+
+/* ───────────── screens ───────────── */
+function title() {
+  setScene('outside', [226, 163, 90], .12);
+  show(`<section class="title">
+    <p class="eyebrow reveal">a melancholy in six rooms</p>
+    <h1 class="reveal" style="--d:.5s">The Tuner<br><span>of</span> Vell Hall</h1>
+    <p class="subtle reveal" style="--d:1.2s">Put on headphones. Every sound here is made in the moment you hear it.</p>
+    <div class="actions reveal" style="--d:1.9s">
+      ${state.started
+        ? `<button class="btn primary" id="cont">Return to Vell Hall</button><button class="btn" id="anew">Begin again</button>`
+        : `<button class="btn primary" id="begin">Open the letter</button>`}
+    </div>
+    <p class="foot reveal" style="--d:2.6s">A small story about ear training: unisons, octaves, intervals, chords, and melody.</p>
+  </section>`);
+  hud.hidden = true;
+  const b = $('#begin'), c = $('#cont'), n = $('#anew');
+  if (b) b.onclick = () => { audio(); intro(); };
+  if (c) c.onclick = () => { audio(); hall(); };
+  if (n) {
+    let armed = false;
+    n.onclick = () => {
+      if (!armed) { armed = true; n.textContent = 'Forget everything? Click again'; setTimeout(() => { armed = false; n.textContent = 'Begin again'; }, 3500); return; }
+      Object.assign(state, fresh(), { vol: state.vol }); save(); audio(); intro();
+    };
+  }
+}
+
+function intro() {
+  setScene('outside', [226, 163, 90], .15);
+  sfx.page();
+  show(`<section class="title" style="text-align:left">
+    <p class="eyebrow reveal" style="text-align:center">An envelope, forwarded twice</p>
+    <article class="letter reveal" style="--d:.4s">${OPENING}</article>
+    <div class="actions reveal" style="--d:1.4s"><button class="btn primary" id="key">Take the key</button></div>
+  </section>`);
+  $('#key').onclick = () => { state.started = true; save(); hall(); };
+}
+
+const arch = (x, y, w, h) => `M${x} ${y + h}V${y + w / 2}A${w / 2} ${w / 2} 0 0 1 ${x + w} ${y + w / 2}V${y + h}Z`;
+function facadeSVG() {
+  const next = state.done.length;
+  const st = i => state.done.includes(i) ? 'lit' : (i === next ? 'next' : 'dark');
+  const win = (i, inner) => `<g class="win ${st(i)}" data-room="${i}" tabindex="${st(i) === 'dark' ? -1 : 0}" role="button" aria-label="${ROOMS[i].name}">${inner}</g>`;
+  const fence = [];
+  for (let x = 6; x < 690; x += 14) if (x < 348 || x > 452) fence.push(`M${x} 470V446`);
+  for (let x = 712; x < 800; x += 14) fence.push(`M${x} 470V446`);
+  return `<svg viewBox="0 0 800 500" role="img" aria-label="The front of Vell Hall at night">
+    <defs>
+      <radialGradient id="warm" cx="50%" cy="70%" r="75%"><stop offset="0" stop-color="#ffe0a6"/><stop offset=".55" stop-color="#e4a258"/><stop offset="1" stop-color="#7a4520"/></radialGradient>
+      <radialGradient id="lampGlow"><stop offset="0" stop-color="#ffd07a" stop-opacity=".6"/><stop offset="1" stop-color="#ffd07a" stop-opacity="0"/></radialGradient>
+      <linearGradient id="stone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c1d28"/><stop offset="1" stop-color="#0f1017"/></linearGradient>
+      <filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="9" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <path d="M0 470H800V500H0Z" fill="#05060a"/>
+    <rect x="566" y="84" width="22" height="70" fill="#14151e" stroke="#2c2d3b"/>
+    <path d="M118 182L400 60L682 182Z" fill="url(#stone)" stroke="#2c2d3b"/>
+    <rect x="140" y="182" width="520" height="288" fill="url(#stone)" stroke="#2c2d3b"/>
+    <rect x="128" y="176" width="544" height="9" fill="#23242f"/>
+    <rect x="132" y="318" width="536" height="5" fill="#1d1e29"/>
+    ${win(5, `<circle class="pane" cx="400" cy="130" r="32"/><path class="mull" d="M400 98V162M368 130H432M377 107L423 153M423 107L377 153"/><circle class="mull" cx="400" cy="130" r="10"/>`)}
+    ${win(4, `<path class="pane" d="${arch(196, 202, 66, 96)}"/><path class="mull" d="M229 202V298M196 262H262"/>`)}
+    ${win(3, `<path class="pane" d="${arch(538, 202, 66, 96)}"/><path class="mull" d="M571 202V298M538 262H604"/>`)}
+    <path class="pane" d="${arch(334, 210, 40, 84)}" fill="#0a0b10" stroke="#2a2b38"/>
+    <path class="pane" d="${arch(426, 210, 40, 84)}" fill="#0a0b10" stroke="#2a2b38"/>
+    ${win(1, `<path class="pane" d="${arch(176, 352, 46, 84)}"/><path class="pane" d="${arch(232, 352, 46, 84)}"/><path class="mull" d="M176 396H222M232 396H278"/>`)}
+    ${win(0, `<path class="pane" d="${arch(368, 346, 64, 124)}"/><path class="mull" d="M368 378H432M400 378V470"/>`)}
+    ${win(2, `<path class="pane" d="${arch(520, 344, 104, 96)}"/><path class="mull" d="M554.7 344V440M589.3 344V440M520 400H624"/>`)}
+    <rect x="352" y="466" width="96" height="5" fill="#1d1e29"/>
+    <path d="${fence.join('')}M0 452H348M452 452H690M712 452H800" stroke="#1c1d27" stroke-width="2.5"/>
+    <path d="M690 470V436M712 470V436M690 440H712" stroke="#262733" stroke-width="3"/>
+    ${state.ended ? '' : `<g><path d="M760 470V418" stroke="#262733" stroke-width="2"/><circle class="lamp-glow" cx="760" cy="414" r="42" fill="url(#lampGlow)"/><circle cx="760" cy="414" r="3.5" fill="#ffe2a0"/></g>`}
+  </svg>`;
+}
+
+function hall() {
+  setScene('outside', [226, 163, 90], .1 + state.done.length * .08, 33);
+  setQuiet(false); closeModal();
+  const n = state.done.length;
+  const caption = state.ended ? 'Every room in tune. The gate is empty now.'
+    : n === 0 ? 'Forty years silent. A lamp burns at the gate.'
+    : `${n} of six rooms in tune. The lamp at the gate is still burning.`;
+  const statusOf = i => state.done.includes(i) ? ['done', 'in tune'] : i === n ? ['next', 'a candle in the window'] : ['dark', 'dark'];
+  show(`<section class="hall">
+    <p class="eyebrow reveal">Evening · rain</p>
+    <h2 class="reveal" style="--d:.2s">Vell Hall</h2>
+    <p class="subtle reveal" style="--d:.4s">${caption}</p>
+    <div class="facade reveal" style="--d:.5s">${facadeSVG()}</div>
+    <p class="win-caption" id="cap" aria-live="polite">&nbsp;</p>
+    <ol class="ledger reveal" style="--d:.8s">${ROOMS.map((r, i) => {
+      const [c, s] = statusOf(i);
+      return `<li><button class="btn room-btn ${c}" data-room="${i}" ${c === 'dark' ? 'disabled' : ''}><span class="rn">${r.num}</span><span>${r.name}</span><span class="rstat">${s}</span></button></li>`;
+    }).join('')}</ol>
+  </section>`);
+  const capEl = $('#cap');
+  $$('[data-room]').forEach(el => {
+    const i = +el.dataset.room, open = i <= n;
+    const label = () => { capEl.textContent = `${ROOMS[i].num} · ${ROOMS[i].name}: ${statusOf(i)[1]}`; };
+    el.addEventListener('mouseenter', label); el.addEventListener('focus', label);
+    el.addEventListener('click', () => { if (open) { audio(); room(i); } });
+    el.addEventListener('keydown', e => { if (open && (e.key === 'Enter' || e.key === ' ') && el.tagName === 'g') { e.preventDefault(); audio(); room(i); } });
+  });
+}
+
+function room(i) {
+  const R = ROOMS[i], again = state.done.includes(i);
+  setScene('inside', R.tint, again ? .9 : .35, R.drone);
+  setQuiet(false);
+  sfx.creak();
+  show(`<section class="room" id="room">
+    <header class="room-head"><p class="eyebrow reveal">${R.num} · ${R.inst}</p><h2 class="reveal" style="--d:.2s">${R.name}</h2></header>
+    <div class="narr">${R.intro.map((p, k) => `<p class="reveal" style="--d:${.7 + k * 1.7}s">${p}</p>`).join('')}</div>
+    <aside class="lesson reveal" style="--d:${.7 + R.intro.length * 1.7}s"><h3>The craft</h3><p>${R.lesson}</p></aside>
+    <div class="actions start reveal" style="--d:${1.3 + R.intro.length * 1.7}s"><button class="btn primary" id="go">${again ? 'Practise again' : 'Begin'}<kbd>Enter</kbd></button></div>
+    <div id="ex"></div>
+    <p class="subtle small start reveal" style="--d:1.2s;text-align:center">Click the text to read faster.</p>
+  </section>`);
+  $('#hudHall').hidden = false;
+  const sec = $('#room');
+  $('.narr', sec).addEventListener('click', () => sec.classList.add('now'));
+  const go = () => {
+    sec.classList.add('working', 'now'); setQuiet(true);
+    const box = $('#ex'), done = () => roomComplete(i);
+    if (R.ex.type === 'tune') exTune(box, R.ex, done);
+    else if (R.ex.type === 'quiz') exQuiz(box, R.ex, done);
+    else if (R.ex.type === 'dictate') exDictate(box, R.ex, done);
+    else exFinale(box, done);
+  };
+  $('#go').onclick = go;
+  keyHandler = e => { if (e.key === 'Enter') { e.preventDefault(); go(); } };
+}
+
+function roomComplete(i) {
+  const R = ROOMS[i], first = !state.done.includes(i);
+  if (first) { state.done.push(i); save(); }
+  setQuiet(false);
+  if (i === 5) return ending();
+  setScene('inside', R.tint, 1, R.drone);
+  sfx.chime(.18);
+  show(`<section class="found">
+    <p class="eyebrow reveal">${R.num} · ${R.name} · in tune</p>
+    <p class="after reveal" style="--d:.5s">${R.after}</p>
+    <article class="letter reveal" style="--d:2.2s"><h4>${first ? 'Found: ' : ''}${R.found.t}</h4>${R.found.b}</article>
+    <p class="subtle small reveal" style="--d:3.4s">${first ? 'You fold it into your coat pocket with the others.' : ''}</p>
+    <div class="actions reveal" style="--d:3.8s"><button class="btn primary" id="back">Return to the hall<kbd>Enter</kbd></button></div>
+  </section>`);
+  $('#hudHall').hidden = false;
+  setTimeout(() => ctx && sfx.page(), 2200);
+  $('#back').onclick = hall;
+  keyHandler = e => { if (e.key === 'Enter') { e.preventDefault(); hall(); } };
+}
+
+function ending() {
+  const first = !state.ended;
+  state.ended = true; save();
+  setScene('inside', [240, 205, 150], 1, 33);
+  const step = 5.2;
+  show(`<section class="ending">
+    <p class="eyebrow reveal">VI · The Great Hall</p>
+    <div class="narr" style="margin-top:2rem">${END_TEXT.map((p, k) => `<p class="reveal slow" style="--d:${1.5 + k * step}s">${p}</p>`).join('')}</div>
+    <h2 class="reveal slow" style="--d:${1.5 + END_TEXT.length * step}s">The End</h2>
+    <p class="subtle small reveal" style="--d:${2.5 + END_TEXT.length * step}s">${first ? 'Every room stays open. Come back to practise whenever you like; the hall will remember.' : ''}</p>
+    <div class="actions reveal" style="--d:${3 + END_TEXT.length * step}s"><button class="btn primary" id="back">Return to the hall</button><button class="btn" id="lt">Read the letters</button></div>
+  </section>`);
+  $('#hudHall').hidden = false;
+  setQuiet(true);
+  playLullaby({ end: true, full: true });
+  $('#back').onclick = hall; $('#lt').onclick = letters;
+}
+
+/* ───────────── exercise: tuning ───────────── */
+const KNOB_SVG = `<svg viewBox="-100 -100 200 200" aria-hidden="true">
+  <defs><radialGradient id="brass" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#f3dca2"/><stop offset=".5" stop-color="#b48a40"/><stop offset="1" stop-color="#4f3815"/></radialGradient></defs>
+  <circle r="94" fill="#0c0c12" stroke="#2c2b36" stroke-width="2"/>
+  ${Array.from({ length: 60 }, (_, k) => { const a = k * 6 * Math.PI / 180, r1 = k % 5 ? 84 : 79; return `<line x1="${(Math.sin(a) * r1).toFixed(1)}" y1="${(-Math.cos(a) * r1).toFixed(1)}" x2="${(Math.sin(a) * 90).toFixed(1)}" y2="${(-Math.cos(a) * 90).toFixed(1)}" stroke="rgba(232,220,196,.22)" stroke-width="1"/>`; }).join('')}
+  <g class="rot"><circle r="66" fill="url(#brass)"/><circle r="52" fill="none" stroke="rgba(0,0,0,.28)" stroke-width="2"/>
+  <rect x="-7" y="-64" width="14" height="44" rx="6" fill="#2a1d0c"/><circle r="12" fill="#3a2a12"/><circle r="4" fill="#1a1208"/></g>
+</svg>`;
+
+function describeBeats(b) {
+  if (b >= 5) return `Not yet. A quick, sour shimmer runs through the note, about ${Math.round(b)} beats a second.`;
+  if (b >= 1.5) return `Closer. A clear wah-wah, about ${Math.round(b)} beats a second.`;
+  if (b >= .6) return `Close. A slow swell is left: ${b >= 1 ? 'about one a second' : 'one every ' + (1 / b).toFixed(1) + ' seconds'}.`;
+  return `Very close. Only a faint breath is left in the note. Turn it a hair more.`;
+}
+
+function exTune(root, cfg, onDone) {
+  audio();
+  const n = cfg.rounds.length, oct = cfg.mode === 'octave';
+  const stretch = oct ? 1200 * Math.log2(Math.sqrt(1 + 4 * B_INH) / Math.sqrt(1 + B_INH)) : 0;
+  let r = 0, cents = 0, hidden = 0, misses = 0, busy = false, finished = false, voices = [], yours = null;
+  let raf = 0, showStr = false, moved = 0, lastTick = 0, drag = null;
+  const an = ctx.createAnalyser(); an.fftSize = 1024;
+  const sink = ctx.createGain(); sink.gain.value = 0; an.connect(sink); sink.connect(ctx.destination);
+  const buf = new Float32Array(an.fftSize), hist = [];
+  root.innerHTML = `<div class="ex">
+    <div class="pips">${cfg.rounds.map(() => '<i></i>').join('')}</div>
+    <p class="prompt" id="tp"></p>
+    <div class="tune-row">
+      <button class="btn" id="bRef">Reference<kbd>R</kbd></button>
+      <div class="knob" id="knob" tabindex="0" aria-label="Tuning pin. Drag, scroll, or use the arrow keys; hold Shift for fine turns.">${KNOB_SVG}</div>
+      <button class="btn" id="bYou">Your string<kbd>Y</kbd></button>
+    </div>
+    <p class="knob-hint">drag or scroll the pin · arrow keys · hold Shift to turn finely</p>
+    <div class="actions"><button class="btn primary" id="bStrike">Strike ${oct ? 'the octave' : 'both strings'}<kbd>Space</kbd></button><button class="btn" id="bSet">Set the pin<kbd>Enter</kbd></button></div>
+    <p class="feedback" id="tf"></p>
+    <button class="linkbtn" id="bShow" hidden>Show me the string</button>
+    <canvas class="string-view" id="sv" hidden></canvas>
+    <p class="subtle small" id="svCap" hidden>Each swell you see is one beat you hear. Try to catch it with your ears first.</p>
+  </div>`;
+  const knob = $('#knob', root), rot = $('.rot', knob), tp = $('#tp', root), tf = $('#tf', root), sv = $('#sv', root), pips = $$('.pips i', root);
+
+  function setup() {
+    const R = cfg.rounds[r];
+    cents = stretch + (Math.random() < .5 ? -1 : 1) * R.off * rnd(.85, 1.15);
+    hidden = rnd(0, 72); misses = 0; busy = false;
+    tp.innerHTML = oct ? `Octave ${r + 1} of ${n}: ${nname(R.ref)} and the ${nname(R.ref + 12)} above it` : `String ${r + 1} of ${n}: ${nname(R.ref)}`;
+    tf.className = 'feedback'; tf.textContent = 'Strike, listen, turn.';
+    draw();
+  }
+  const draw = () => rot.setAttribute('transform', `rotate(${((cents + hidden) * 5).toFixed(2)})`);
+  const stopV = () => { voices.forEach(v => v.stop()); voices = []; yours = null; };
+  function strike(which) {
+    if (finished) return;
+    audio(); stopV();
+    const R = cfg.rounds[r], t = ctx.currentTime + .02;
+    if (which !== 'you') voices.push(piano(R.ref, { t, vel: .6, sus: 2.4, pan: -.15, tap: an }));
+    if (which !== 'ref') { yours = piano(R.ref + (oct ? 12 : 0), { t, vel: oct ? .55 : .6, sus: 2.4, pan: .15, detune: cents, tap: an }); voices.push(yours); }
+  }
+  function turn(d) {
+    if (busy || finished) return;
+    cents = Math.max(stretch - 60, Math.min(stretch + 60, cents + d)); draw();
+    if (yours) yours.detune(cents);
+    moved += Math.abs(d);
+    if (moved > 1.2) { moved = 0; const now = performance.now(); if (now - lastTick > 45) { lastTick = now; sfx.tick(); } }
+  }
+  function setPin() {
+    if (busy || finished) return;
+    const R = cfg.rounds[r], err = cents - stretch;
+    if (Math.abs(err) <= R.tol) {
+      busy = true; pips[r].classList.add('on');
+      tf.className = 'feedback good'; tf.textContent = pick(GOOD_TUNE); sfx.settle();
+      r++;
+      if (r >= n) { finished = true; setTimeout(() => { stopV(); dispose(); onDone(); }, 2400); }
+      else setTimeout(() => { stopV(); setup(); }, 2000);
+    } else {
+      misses++; sfx.soft();
+      const f = mtof(R.ref + (oct ? 12 : 0)), b = f * Math.abs(Math.pow(2, err / 1200) - 1);
+      tf.className = 'feedback';
+      tf.textContent = describeBeats(b) + (misses >= 3 ? ' Turn a little, strike again, and compare. If the beats speed up, go back the other way.' : '');
+      if (misses >= 2) $('#bShow', root).hidden = false;
+    }
+  }
+  function loop() {
+    raf = requestAnimationFrame(loop);
+    an.getFloatTimeDomainData(buf);
+    let s = 0; for (let k = 0; k < buf.length; k++) s += buf[k] * buf[k];
+    hist.push(Math.sqrt(s / buf.length)); if (hist.length > 360) hist.shift();
+    if (!showStr) return;
+    const c = sv.getContext('2d'), w = sv.width = sv.clientWidth * 2, h = sv.height = 160;
+    let mx = .0001; for (const v of hist) if (v > mx) mx = v;
+    c.clearRect(0, 0, w, h); c.beginPath();
+    hist.forEach((v, k) => { const x = k / 360 * w, y = h / 2 - (v / mx) * h * .44; k ? c.lineTo(x, y) : c.moveTo(x, y); });
+    for (let k = hist.length - 1; k >= 0; k--) c.lineTo(k / 360 * w, h / 2 + (hist[k] / mx) * h * .44);
+    c.closePath(); c.fillStyle = 'rgba(240,210,154,.22)'; c.fill();
+    c.strokeStyle = 'rgba(240,210,154,.75)'; c.lineWidth = 2; c.stroke();
+  }
+  raf = requestAnimationFrame(loop);
+
+  knob.addEventListener('pointerdown', e => { knob.setPointerCapture(e.pointerId); drag = { x: e.clientX, y: e.clientY }; knob.focus(); });
+  knob.addEventListener('pointermove', e => {
+    if (!drag) return;
+    const d = (e.clientX - drag.x) - (e.clientY - drag.y); drag = { x: e.clientX, y: e.clientY };
+    turn(d * (e.shiftKey ? .025 : .11));
+  });
+  const end = () => { drag = null; };
+  knob.addEventListener('pointerup', end); knob.addEventListener('pointercancel', end);
+  knob.addEventListener('wheel', e => { e.preventDefault(); turn(-Math.sign(e.deltaY) * Math.min(4, Math.abs(e.deltaY) * .02) * (e.shiftKey ? .25 : 1)); }, { passive: false });
+  $('#bRef', root).onclick = () => strike('ref');
+  $('#bYou', root).onclick = () => strike('you');
+  $('#bStrike', root).onclick = () => strike('both');
+  $('#bSet', root).onclick = setPin;
+  $('#bShow', root).onclick = () => { showStr = true; sv.hidden = false; $('#svCap', root).hidden = false; $('#bShow', root).hidden = true; };
+
+  keyHandler = e => {
+    const k = e.key;
+    if (k === ' ') { e.preventDefault(); strike('both'); }
+    else if (k === 'Enter') { e.preventDefault(); setPin(); }
+    else if (k === 'r' || k === 'R') strike('ref');
+    else if (k === 'y' || k === 'Y') strike('you');
+    else if (k === 'ArrowUp' || k === 'ArrowRight') { e.preventDefault(); turn(e.shiftKey ? .1 : .5); }
+    else if (k === 'ArrowDown' || k === 'ArrowLeft') { e.preventDefault(); turn(e.shiftKey ? -.1 : -.5); }
+  };
+  let disposed = false;
+  function dispose() { if (disposed) return; disposed = true; cancelAnimationFrame(raf); stopV(); try { an.disconnect(); sink.disconnect(); } catch (e) {} }
+  onDispose(dispose);
+  setup();
+  return dispose;
+}
+
+/* ───────────── exercise: intervals & chords ───────────── */
+function exQuiz(root, cfg, onDone) {
+  audio();
+  const bank = cfg.kind === 'interval' ? INTERVALS : CHORDS, word = cfg.kind === 'interval' ? 'distance' : 'colour';
+  let correct = 0, cur = null, last = null, busy = true, wrongState = false;
+  const newly = new Set(), timers = [];
+  const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+  onDispose(() => timers.forEach(clearTimeout));
+  root.innerHTML = `<div class="ex">
+    <div class="pips">${'<i></i>'.repeat(cfg.need)}</div>
+    <p class="prompt" id="qp"></p>
+    <div class="actions"><button class="btn" id="qAgain">Hear it again<kbd>Space</kbd></button></div>
+    <div class="opts" id="opts"></div>
+    <p class="feedback" id="qf"></p>
+    <div class="actions" id="qNextWrap" hidden><button class="btn" id="qYours"></button><button class="btn primary" id="qNext">Next<kbd>Enter</kbd></button></div>
+  </div>`;
+  const qp = $('#qp', root), qf = $('#qf', root), pips = $$('.pips i', root), opts = $('#opts', root), nextWrap = $('#qNextWrap', root);
+  const avail = () => cfg.stages.filter(s => s.at <= correct).flatMap(s => s.o);
+  const btnFor = k => $(`.opt[data-k="${k}"]`, root);
+
+  function play(k = cur.k, r0 = cur.root) {
+    audio(); const t = ctx.currentTime + .05;
+    if (cfg.kind === 'interval') {
+      const s = bank[k].s;
+      piano(r0, { t, vel: .55 }); piano(r0 + s, { t: t + .9, vel: .55 });
+      piano(r0, { t: t + 2, vel: .42 }); piano(r0 + s, { t: t + 2, vel: .42 });
+    } else {
+      choir(bank[k].iv.map(x => r0 + x), { t, dur: 2.2, stagger: .42, vel: .55 });
+    }
+  }
+  function renderOpts() {
+    opts.innerHTML = avail().map((k, i) => `<button class="btn opt" data-k="${k}">${bank[k].n}${newly.has(k) ? '<span class="new">new</span>' : ''}<kbd>${i + 1}</kbd></button>`).join('');
+    $$('.opt', opts).forEach(b => b.onclick = () => answer(b.dataset.k));
+  }
+  function ask() {
+    const a = avail(); let k;
+    do { k = pick(a); } while (a.length > 1 && k === last);
+    last = k;
+    const r0 = cfg.kind === 'interval' ? Math.floor(rnd(50, 75 - bank[k].s)) : Math.floor(rnd(53, 61));
+    cur = { k, root: r0 }; busy = false; wrongState = false;
+    nextWrap.hidden = true;
+    qp.textContent = cfg.kind === 'interval' ? 'What distance is this?' : 'What colour is this chord?';
+    qf.className = 'feedback'; qf.textContent = '';
+    renderOpts();
+    later(() => play(), 350);
+  }
+  function answer(k) {
+    if (busy || !cur) return;
+    busy = true;
+    if (k === cur.k) {
+      correct++; pips[correct - 1].classList.add('on'); btnFor(k).classList.add('right');
+      newly.delete(k);
+      qf.className = 'feedback good'; qf.innerHTML = `${bank[k].n}: ${bank[k].h}.`;
+      sfx.chime(.1);
+      if (correct >= cfg.need) { later(onDone, 2400); return; }
+      const st = cfg.stages.find(s => s.at === correct && s.at > 0);
+      if (st) {
+        st.o.forEach(x => newly.add(x));
+        later(() => {
+          qf.className = 'feedback';
+          qf.innerHTML = `A new ${word} joins: ${st.o.map(x => `<b>${bank[x].n.toLowerCase()}</b>, ${bank[x].h}`).join('; ')}. Listen.`;
+          st.o.forEach((x, j) => later(() => play(x, 57), 600 + j * 3400));
+          later(ask, 600 + st.o.length * 3400 + 800);
+        }, 1600);
+      } else later(ask, 1700);
+    } else {
+      wrongState = true; sfx.soft();
+      btnFor(k).classList.add('wrong'); btnFor(cur.k).classList.add('right');
+      qf.className = 'feedback';
+      qf.innerHTML = `That was a <b>${bank[cur.k].n.toLowerCase()}</b>: ${bank[cur.k].h}. Hear yours beside it.`;
+      const y = $('#qYours', root); y.textContent = `Hear ${bank[k].n.toLowerCase()}`; y.onclick = () => play(k);
+      nextWrap.hidden = false;
+    }
+  }
+  $('#qAgain', root).onclick = () => cur && play();
+  $('#qNext', root).onclick = () => wrongState && ask();
+  keyHandler = e => {
+    if (e.key === ' ') { e.preventDefault(); if (cur) play(); }
+    else if (e.key === 'Enter') { e.preventDefault(); if (wrongState) ask(); }
+    else if (/^[1-9]$/.test(e.key)) { const k = avail()[+e.key - 1]; if (k) answer(k); }
+  };
+  qp.textContent = 'Listen…';
+  later(ask, 500);
+}
+
+/* ───────────── exercise: melodic dictation ───────────── */
+function exDictate(root, cfg, onDone) {
+  audio();
+  const SC = [60, 62, 64, 65, 67, 69, 71, 72], SOL = ['do', 're', 'mi', 'fa', 'sol', 'la', 'ti', 'do'];
+  const LET = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C'], KB = 'asdfghjk';
+  const N = cfg.rounds.length;
+  let r = 0, input = [], lock = false, misses = 0;
+  const timers = []; const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+  onDispose(() => timers.forEach(clearTimeout));
+  const listens = cfg.listens || [{ label: 'Wind the cylinder', kbd: 'Space', fn: () => humPhrase(cfg.rounds[r]) }];
+  root.innerHTML = `<div class="ex">
+    ${N > 1 ? `<div class="pips">${'<i></i>'.repeat(N)}</div>` : ''}
+    <p class="prompt" id="dp"></p>
+    <div class="actions">${listens.map((l, i) => `<button class="btn ${i ? '' : 'primary'}" data-l="${i}">${l.label}<kbd>${l.kbd}</kbd></button>`).join('')}</div>
+    <div class="slots" id="slots"></div>
+    <p class="hint" id="dh"></p>
+    <div class="keys">${SC.map((m, i) => `<button class="key" data-k="${i}" aria-label="${SOL[i]} (${LET[i]})"><span class="sol">${SOL[i]}</span><span class="let">${LET[i]}<kbd>${KB[i]}</kbd></span></button>`).join('')}</div>
+    <p class="feedback" id="df"></p>
+  </div>`;
+  const dp = $('#dp', root), df = $('#df', root), dh = $('#dh', root), slots = $('#slots', root), pips = $$('.pips i', root), keys = $$('.key', root);
+  const phrase = () => cfg.rounds[r];
+  function renderSlots() {
+    slots.innerHTML = phrase().map((_, k) => `<span class="${k < input.length ? 'f' : ''}">${k < input.length ? SOL[input[k]] : ''}</span>`).join('');
+  }
+  function setup() {
+    input = []; lock = false; misses = 0; dh.textContent = '';
+    dp.textContent = N > 1 ? `Fragment ${r + 1} of ${N} · ${phrase().length} notes` : `The ending · ${phrase().length} notes`;
+    df.className = 'feedback'; df.textContent = '';
+    renderSlots();
+  }
+  function hints() {
+    const ph = phrase();
+    if (misses >= 6) dh.innerHTML = `It begins on <i>${SOL[ph[0]]}</i>, and moves ${ph.slice(1).map((d, k) => d > ph[k] ? '↑' : d < ph[k] ? '↓' : '→').join(' ')}`;
+    else if (misses >= 3) dh.innerHTML = `It begins on <i>${SOL[ph[0]]}</i>.`;
+  }
+  function press(i) {
+    if (lock) return;
+    audio();
+    const key = keys[i]; key.classList.add('down'); setTimeout(() => key.classList.remove('down'), 140);
+    piano(SC[i], { vel: .45, sus: .5 });
+    const k = input.length, ph = phrase();
+    input.push(i); renderSlots();
+    if (ph[k] !== i) {
+      lock = true; misses++; key.classList.add('miss');
+      df.className = 'feedback';
+      df.textContent = k === 0 ? 'It begins somewhere else. Listen for how far the first note sits from do.'
+        : `The first ${k === 1 ? 'note was' : k + ' notes were'} right. The tune turns elsewhere on note ${k + 1}.`;
+      hints();
+      later(() => { key.classList.remove('miss'); input = []; renderSlots(); lock = false; }, 1000);
+      return;
+    }
+    if (input.length === ph.length) {
+      lock = true;
+      if (pips[r]) pips[r].classList.add('on');
+      df.className = 'feedback good'; df.textContent = (cfg.lines && cfg.lines[r]) || pick(GOOD_DICT);
+      sfx.settle();
+      r++;
+      if (r >= N) later(onDone, cfg.lines && cfg.lines[r - 1] ? 4200 : 2200);
+      else later(() => { setup(); listens[0].fn(); }, 2200);
+    }
+  }
+  keys.forEach((el, i) => {
+    el.addEventListener('pointerdown', e => { e.preventDefault(); press(i); });
+    el.addEventListener('click', e => { if (e.detail === 0) press(i); });
+  });
+  $$('[data-l]', root).forEach(b => b.onclick = () => listens[+b.dataset.l].fn());
+  keyHandler = e => {
+    const k = e.key.toLowerCase();
+    if (e.key === ' ') { e.preventDefault(); listens[0].fn(); }
+    else if (k === 'l' && listens[1]) listens[1].fn();
+    else if (KB.includes(k) && k.length === 1) press(KB.indexOf(k));
+    else if (/^[1-8]$/.test(k)) press(+k - 1);
+  };
+  setup();
+  if (!cfg.listens) later(() => listens[0].fn(), 700);
+}
+
+/* ───────────── the great hall ───────────── */
+function exFinale(root, onDone) {
+  root.innerHTML = `<div id="fA"></div>`;
+  exTune($('#fA', root), { mode: 'unison', rounds: [{ ref: 57, off: 18, tol: 1.6 }] }, scoreStep);
+
+  function barsHTML() {
+    const bars = Array.from({ length: 8 }, () => []);
+    let pos = 0;
+    LULL_A.forEach(([m, d]) => { bars[Math.floor(pos / 3)].push([m, pos % 3]); pos += d; });
+    return bars.map((b, i) => `<div class="bar" data-b="${i}">${b.map(([m, p]) => `<i style="left:${12 + p / 3 * 80}%;top:${42 - (m - 60) * 3.6}px"></i>`).join('')}</div>`).join('')
+      + `<div class="bar empty" id="emptyBar">?</div>`;
+  }
+  function scoreStep() {
+    setQuiet(true);
+    root.innerHTML = `<div class="ex">
+      <p class="prompt">The grand is in tune. You set the manuscript on the desk: <em>Lullaby for E.</em></p>
+      <div class="score" id="score">${barsHTML()}</div>
+      <div class="actions" id="aWrap"><button class="btn primary" id="playA">Play Ada's eight bars<kbd>Space</kbd></button></div>
+      <div id="fB"></div>
+    </div>`;
+    const hl = b => $$('.bar[data-b]', root).forEach(el => el.classList.toggle('play', +el.dataset.b === b));
+    let heard = false;
+    const playA = () => {
+      const dur = playLullaby({ onBar: hl });
+      setTimeout(() => hl(-1), dur * 1000);
+      if (!heard) { heard = true; setTimeout(reveal, dur * 1000 + 300); }
+    };
+    $('#playA', root).onclick = playA;
+    keyHandler = e => { if (e.key === ' ') { e.preventDefault(); if (!heard) playA(); } };
+    function reveal() {
+      if (!$('#fB', root)) return;
+      $('#aWrap', root).remove();
+      $('#fB', root).innerHTML = `<p class="feedback">Ada's bars stop at the empty one. Play the ending the way the child hummed it.</p><div id="fC"></div>`;
+      exDictate($('#fC', root), {
+        rounds: [END_DEG],
+        lines: ['Yes. That one.'],
+        listens: [
+          { label: "Ada's bars", kbd: 'Space', fn: playA },
+          { label: 'Wind the cylinder', kbd: 'L', fn: () => humPhrase(END_DEG) }
+        ]
+      }, () => { $('#emptyBar', root).classList.add('filled'); $('#emptyBar', root).textContent = 'mi sol la sol mi re do'; setTimeout(onDone, 1800); });
+    }
+  }
+}
+
+/* ───────────── go ───────────── */
+title();
+})();
+</script>
+</body>
+</html>
